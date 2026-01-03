@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { resizeImage, downloadImage } from '../api/imageApi';
+import { resizeImage, downloadImage, downloadMultipleImagesAsZip } from '../api/imageApi';
 import { ImageFile } from '../store/imageStore';
 
 export const useImageResize = () => {
@@ -26,6 +26,8 @@ export const useImageResize = () => {
             setIsLoading(true);
             setLoadingMessage(`${checkedFiles.length}개 파일 리사이징 중...`);
 
+            const downloadFiles: Array<{ filename: string; downloadName: string }> = [];
+
             for (let i = 0; i < checkedFiles.length; i++) {
                 const file = checkedFiles[i];
                 setLoadingMessage(`[${i + 1}/${checkedFiles.length}] ${file.name} 처리 중...`);
@@ -38,20 +40,19 @@ export const useImageResize = () => {
                     maintainAspectRatio: maintainRatio,
                 });
 
-                console.log('리사이징 응답:', {
-                    originalName: response.file.originalName,
-                    originalExt: response.file.originalExt,
-                    downloadName: `resized_${response.file.originalName}${response.file.originalExt}`,
-                });
-
                 if (response.success) {
-                    setLoadingMessage(
-                        `[${i + 1}/${checkedFiles.length}] ${file.name} 다운로드 중...`
-                    );
-                    // 원본 파일명에 'resized_' prefix 추가
                     const downloadFilename = `resized_${response.file.originalName}${response.file.originalExt}`;
-                    downloadImage(response.file.resizedFilename, downloadFilename);
+                    downloadFiles.push({
+                        filename: response.file.resizedFilename,
+                        downloadName: downloadFilename,
+                    });
                 }
+            }
+
+            // 모든 파일을 zip으로 압축해서 다운로드
+            if (downloadFiles.length > 0) {
+                setLoadingMessage(`${downloadFiles.length}개 파일을 ZIP으로 압축해 다운로드 중...`);
+                await downloadMultipleImagesAsZip(downloadFiles);
             }
 
             setTimeout(() => {

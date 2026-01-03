@@ -90,8 +90,10 @@ export const resizeMultipleImages = async (
  * 이미지 다운로드
  */
 export const downloadImage = (filename: string, downloadName?: string) => {
-    const url = downloadName 
-        ? `${API_BASE_URL}/api/download/${filename}?downloadName=${encodeURIComponent(downloadName)}`
+    const url = downloadName
+        ? `${API_BASE_URL}/api/download/${filename}?downloadName=${encodeURIComponent(
+              downloadName
+          )}`
         : `${API_BASE_URL}/api/download/${filename}`;
     const link = document.createElement('a');
     link.href = url;
@@ -113,4 +115,33 @@ export const downloadMultipleImages = (filenames: string[]) => {
     });
 };
 
+/**
+ * 여러 이미지를 zip으로 압축해서 다운로드
+ */
+export const downloadMultipleImagesAsZip = async (
+    files: Array<{ filename: string; downloadName: string }>
+) => {
+    try {
+        const response = await apiClient.post(
+            '/api/download-zip',
+            { files },
+            {
+                responseType: 'blob',
+            }
+        );
+
+        // blob을 다운로드
+        const url = window.URL.createObjectURL(response.data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'resized-images.zip';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Zip 다운로드 중 오류:', error);
+        throw error;
+    }
+};
 export default apiClient;

@@ -13,7 +13,7 @@ const uploadDir = path.join(process.cwd(), 'uploads');
 router.post('/', async (req: any, res: any, next: any) => {
     try {
         const { filename, originalName, width, height, maintainAspectRatio } = req.body;
-        
+
         console.log('리사이징 요청 받음:', { filename, originalName, width, height });
 
         if (!filename) {

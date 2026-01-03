@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useImageStore } from '../store/imageStore';
+import { resizeImage, downloadImage } from '../api/imageApi';
 
 export default function EditPage() {
     const navigate = useNavigate();
@@ -12,6 +13,8 @@ export default function EditPage() {
         width: number;
         height: number;
     } | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
 
     useEffect(() => {
         if (files.length === 0) {
@@ -80,6 +83,48 @@ export default function EditPage() {
                 height: height === '' ? null : Number(height),
                 maintainAspectRatio: maintainRatio,
             });
+        }
+    };
+
+    const handleConvertAndDownload = async () => {
+        if (!selected) {
+            alert('파일을 선택해주세요.');
+            return;
+        }
+
+        if (width === '' && height === '') {
+            alert('너비 또는 높이를 입력해주세요.');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            setLoadingMessage(`${selected.name} 리사이징 중...`);
+
+            const response = await resizeImage({
+                filename: selected.name,
+                width: width === '' ? undefined : Number(width),
+                height: height === '' ? undefined : Number(height),
+                maintainAspectRatio: maintainRatio,
+            });
+
+            if (response.success) {
+                setLoadingMessage(`다운로드 중...`);
+                // 자동 다운로드
+                downloadImage(response.file.resizedFilename);
+
+                // 잠시 후 완료 메시지
+                setTimeout(() => {
+                    alert('리사이징이 완료되었습니다!');
+                    setIsLoading(false);
+                    setLoadingMessage('');
+                }, 1000);
+            }
+        } catch (error: any) {
+            console.error('리사이징 에러:', error);
+            alert(`에러 발생: ${error.response?.data?.error || error.message}`);
+            setIsLoading(false);
+            setLoadingMessage('');
         }
     };
 
@@ -230,8 +275,23 @@ export default function EditPage() {
                             <p className="text-gray-500 text-sm">파일을 선택하면 미리보기가 표시됩니다.</p>
                         )}
                         <div className="flex-1" />
-                        <button className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
-                            ✨ 변환하여 저장하기
+
+                        {/* 로딩 상태 표시 */}
+                        {isLoading && (
+                            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p className="text-blue-700 text-sm font-medium">{loadingMessage}</p>
+                                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                                    <div className="bg-indigo-600 h-2 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={handleConvertAndDownload}
+                            disabled={isLoading || !selected || (width === '' && height === '')}
+                            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isLoading ? '변환 중...' : '✨ 변환하여 저장하기'}
                         </button>
                     </div>
                 </div>

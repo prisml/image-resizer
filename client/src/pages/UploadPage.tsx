@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useImageStore, ImageFile } from '../store/imageStore';
+import { uploadMultipleImages } from '../api/imageApi';
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -10,6 +11,7 @@ export default function UploadPage() {
     const { addFiles, files } = useImageStore();
     const [dragActive, setDragActive] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const validateFile = (file: File): { valid: boolean; error?: string } => {
         if (!ALLOWED_TYPES.includes(file.type)) {

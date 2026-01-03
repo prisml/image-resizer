@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useImageStore, ImageFile } from '../store/imageStore';
 import { uploadMultipleImages } from '../api/imageApi';
@@ -33,14 +33,44 @@ export default function UploadPage() {
         return { valid: true };
     };
 
+    const handleDragDocument = (e: DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isUploading) return;
+
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActive(true);
+        } else if (e.type === 'dragleave' || e.type === 'drop') {
+            setDragActive(false);
+        }
+    };
+
+    const handleDropDocument = (e: DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        if (e.dataTransfer?.files) {
+            handleFiles(e.dataTransfer.files);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('dragenter', handleDragDocument as any);
+        document.addEventListener('dragover', handleDragDocument as any);
+        document.addEventListener('dragleave', handleDragDocument as any);
+        document.addEventListener('drop', handleDropDocument as any);
+
+        return () => {
+            document.removeEventListener('dragenter', handleDragDocument as any);
+            document.removeEventListener('dragover', handleDragDocument as any);
+            document.removeEventListener('dragleave', handleDragDocument as any);
+            document.removeEventListener('drop', handleDropDocument as any);
+        };
+    }, [isUploading]);
+
     const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        if (e.type === 'dragenter' || e.type === 'dragover') {
-            setDragActive(!isUploading);
-        } else if (e.type === 'dragleave') {
-            setDragActive(false);
-        }
     };
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -115,6 +145,30 @@ export default function UploadPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            {/* 드래그 오버 오버레이 */}
+            {dragActive && (
+                <div className="fixed inset-0 bg-indigo-600 bg-opacity-20 border-4 border-dashed border-indigo-600 z-50 flex items-center justify-center pointer-events-none">
+                    <div className="bg-white rounded-lg p-8 shadow-2xl text-center">
+                        <svg
+                            className="mx-auto h-24 w-24 text-indigo-600 mb-4 animate-bounce"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4v16m8-8H4"
+                            />
+                        </svg>
+                        <p className="text-2xl font-bold text-indigo-600">
+                            여기에 파일을 드롭하세요!
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <div className="w-full max-w-2xl">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">이미지 리사이저</h1>

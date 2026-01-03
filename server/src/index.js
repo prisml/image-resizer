@@ -14,16 +14,16 @@ app.use(express.urlencoded({ extended: true }));
 
 // 기본 라우트
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running' });
+    res.json({ status: 'Server is running' });
 });
 
 // 에러 핸들링
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // 서버 시작
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

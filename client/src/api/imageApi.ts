@@ -1,6 +1,7 @@
+
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
@@ -46,11 +47,7 @@ export const uploadImage = async (file: File): Promise<UploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await apiClient.post<UploadResponse>('/api/upload', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    const response = await apiClient.post<UploadResponse>('/api/upload', formData);
 
     return response.data;
 };
@@ -64,11 +61,7 @@ export const uploadMultipleImages = async (files: File[]): Promise<MultipleUploa
         formData.append('files', file);
     });
 
-    const response = await apiClient.post<MultipleUploadResponse>('/api/upload/multiple', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    const response = await apiClient.post<MultipleUploadResponse>('/api/upload/multiple', formData);
 
     return response.data;
 };

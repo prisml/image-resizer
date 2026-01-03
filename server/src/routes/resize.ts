@@ -6,20 +6,13 @@ import fs from 'fs';
 const router = express.Router();
 const uploadDir = path.join(process.cwd(), 'uploads');
 
-export interface ResizeRequest {
-    filename: string;
-    width?: number;
-    height?: number;
-    maintainAspectRatio: boolean;
-}
-
 /**
  * POST /api/resize
  * 이미지 리사이징
  */
-router.post('/', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/', async (req: any, res: any, next: any) => {
     try {
-        const { filename, width, height, maintainAspectRatio } = req.body as ResizeRequest;
+        const { filename, width, height, maintainAspectRatio } = req.body;
 
         if (!filename) {
             return res.status(400).json({ error: '파일명이 필요합니다.' });

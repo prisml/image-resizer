@@ -35,7 +35,7 @@ export default function UploadPage() {
         e.preventDefault();
         e.stopPropagation();
         if (e.type === 'dragenter' || e.type === 'dragover') {
-            setDragActive(true);
+            setDragActive(!isUploading);
         } else if (e.type === 'dragleave') {
             setDragActive(false);
         }
@@ -54,11 +54,12 @@ export default function UploadPage() {
         }
     };
 
-    const handleFiles = (fileList: FileList) => {
+    const handleFiles = async (fileList: FileList) => {
         setError(null);
-        const newFiles: ImageFile[] = [];
+        const filesToUpload: File[] = [];
         let hasError = false;
 
+        // 클라이언트 검증
         Array.from(fileList).forEach((file) => {
             const validation = validateFile(file);
 
@@ -68,28 +69,44 @@ export default function UploadPage() {
                 return;
             }
 
-            newFiles.push({
-                id: Math.random(),
-                file,
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                preview: URL.createObjectURL(file),
-                width: null,
-                height: null,
-            });
+            filesToUpload.push(file);
         });
 
-        if (newFiles.length > 0) {
+        if (filesToUpload.length === 0) {
+            return;
+        }
+
+        // 서버로 파일 업로드
+        setIsUploading(true);
+        try {
+            const response = await uploadMultipleImages(filesToUpload);
+
+            const newFiles: ImageFile[] = response.files.map((uploadedFile) => ({
+                id: Math.random(),
+                file: filesToUpload[response.files.indexOf(uploadedFile)],
+                name: uploadedFile.originalName,
+                size: uploadedFile.size,
+                type: uploadedFile.mimetype,
+                preview: URL.createObjectURL(filesToUpload[response.files.indexOf(uploadedFile)]),
+                width: null,
+                height: null,
+                filename: uploadedFile.filename,
+            }));
+
             addFiles(newFiles);
+
             if (!hasError && files.length === 0) {
                 navigate('/edit');
             }
+        } catch (err: any) {
+            setError(err.response?.data?.error || '파일 업로드에 실패했습니다.');
+        } finally {
+            setIsUploading(false);
         }
     };
 
     const handleStartEdit = () => {
-        if (files.length > 0) {
+        if (files.length > 0 && !isUploading) {
             navigate('/edit');
         }
     };
@@ -105,7 +122,7 @@ export default function UploadPage() {
                 {/* 드래그 앤 드롭 영역 */}
                 <div
                     className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition mb-6 ${
-                        dragActive
+                        isUploading ? 'border-gray-300 bg-gray-50 opacity-50 cursor-not-allowed' : dragActive
                             ? 'border-indigo-600 bg-indigo-50'
                             : 'border-gray-300 bg-white hover:border-indigo-400'
                     }`}
@@ -120,24 +137,55 @@ export default function UploadPage() {
                         multiple
                         accept={ALLOWED_TYPES.join(',')}
                         onChange={handleChange}
+                        disabled={isUploading}
                         className="hidden"
                     />
-                    <label htmlFor="file-input" className="cursor-pointer">
-                        <svg
-                            className="mx-auto h-16 w-16 text-gray-400 mb-4"
-                            stroke="currentColor"
-                            fill="none"
-                            viewBox="0 0 48 48"
-                        >
-                            <path
-                                d="M28 8H12a4 4 0 00-4 4v20a4 4 0 004 4h24a4 4 0 004-4V20m-4-12l-8-8m0 0L20 4m4 4v16m-8-8l-4 4m0 0l4 4m-4-4h20"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                        <p className="text-gray-600 font-semibold text-lg">이미지를 여기에 드래그하거나</p>
-                        <p className="text-indigo-600 font-semibold text-lg mt-1">클릭하여 선택하세요</p>
+                    <label htmlFor="file-input" className={`cursor-pointer ${isUploading ? 'pointer-events-none' : ''}`}>
+                        {isUploading ? (
+                            <div className="flex flex-col items-center">
+                                <div className="animate-spin mb-4">
+                                    <svg
+                                        className="h-16 w-16 text-indigo-600"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p className="text-indigo-600 font-semibold text-lg">파일 업로드 중...</p>
+                            </div>
+                        ) : (
+                            <>
+                                <svg
+                                    className="mx-auto h-16 w-16 text-gray-400 mb-4"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
+                                >
+                                    <path
+                                        d="M28 8H12a4 4 0 00-4 4v20a4 4 0 004 4h24a4 4 0 004-4V20m-4-12l-8-8m0 0L20 4m4 4v16m-8-8l-4 4m0 0l4 4m-4-4h20"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <p className="text-gray-600 font-semibold text-lg">이미지를 여기에 드래그하거나</p>
+                                <p className="text-indigo-600 font-semibold text-lg mt-1">클릭하여 선택하세요</p>
+                            </>
+                        )}
                     </label>
                 </div>
 
@@ -164,12 +212,12 @@ export default function UploadPage() {
                             {files.map((fileObj) => (
                                 <div
                                     key={fileObj.id}
-                                    className="relative group rounded-lg overflow-hidden bg-gray-100"
+                                    className="relative group rounded-lg overflow-hidden bg-gray-100 aspect-square"
                                 >
                                     <img
                                         src={fileObj.preview}
                                         alt={fileObj.name}
-                                        className="w-full h-24 object-cover"
+                                        className="w-full h-full object-contain"
                                     />
                                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition flex items-center justify-center">
                                         <div className="opacity-0 group-hover:opacity-100 transition text-white text-center">
@@ -184,7 +232,8 @@ export default function UploadPage() {
                         </div>
                         <button
                             onClick={handleStartEdit}
-                            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+                            disabled={isUploading}
+                            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
                             📝 편집 시작하기
                         </button>

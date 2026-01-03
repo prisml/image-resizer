@@ -102,7 +102,7 @@ export default function EditPage() {
             setLoadingMessage(`${selected.name} 리사이징 중...`);
 
             const response = await resizeImage({
-                filename: selected.name,
+                filename: selected.filename || selected.name,
                 width: width === '' ? undefined : Number(width),
                 height: height === '' ? undefined : Number(height),
                 maintainAspectRatio: maintainRatio,

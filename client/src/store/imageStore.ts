@@ -9,6 +9,7 @@ export interface ImageFile {
     preview: string;
     width: number | null;
     height: number | null;
+    filename?: string;
 }
 
 export interface ResizeSettings {

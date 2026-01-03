@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useImageStore } from '../store/imageStore';
-import ImageEditor from '../modules/ImageEditor/ImageEditor';
+import { ImageEditor } from '../modules';
 
 export default function EditPage() {
     const navigate = useNavigate();

@@ -34,6 +34,7 @@ export const upload = multer({
     storage,
     fileFilter,
     limits: {
-        fileSize: 500 * 1024 * 1024, // 50MB
+        fileSize: 50 * 1024 * 1024, // 50MB
+        files: 100, // 최대 100개 파일
     },
 });

@@ -29,7 +29,7 @@ router.post('/', upload.single('file'), (req: any, res: any) => {
  * POST /api/upload/multiple
  * 여러 이미지 파일 업로드
  */
-router.post('/multiple', upload.array('files', 20), (req: any, res: any) => {
+router.post('/multiple', upload.array('files', 100), (req: any, res: any) => {
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: '파일이 업로드되지 않았습니다.' });
     }

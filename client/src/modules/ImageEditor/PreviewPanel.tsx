@@ -34,7 +34,9 @@ export default function PreviewPanel({
                     <div className="space-y-2 text-sm mb-4">
                         <div className="flex justify-between">
                             <span className="text-gray-600">파일명</span>
-                            <span className="font-medium text-gray-900">{selectedForPreview.name}</span>
+                            <span className="font-medium text-gray-900">
+                                {selectedForPreview.name}
+                            </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">크기</span>
@@ -44,14 +46,14 @@ export default function PreviewPanel({
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">형식</span>
-                            <span className="font-medium text-gray-900">{selectedForPreview.type}</span>
+                            <span className="font-medium text-gray-900">
+                                {selectedForPreview.type}
+                            </span>
                         </div>
                     </div>
                 </>
             ) : (
-                <p className="text-gray-500 text-sm">
-                    파일을 선택하면 미리보기가 표시됩니다.
-                </p>
+                <p className="text-gray-500 text-sm">파일을 선택하면 미리보기가 표시됩니다.</p>
             )}
 
             <div className="flex-1" />

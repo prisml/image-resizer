@@ -90,7 +90,9 @@ export const resizeMultipleImages = async (
  * 이미지 다운로드
  */
 export const downloadImage = (filename: string, downloadName?: string) => {
-    const url = `${API_BASE_URL}/api/download/${filename}`;
+    const url = downloadName 
+        ? `${API_BASE_URL}/api/download/${filename}?downloadName=${encodeURIComponent(downloadName)}`
+        : `${API_BASE_URL}/api/download/${filename}`;
     const link = document.createElement('a');
     link.href = url;
     link.download = downloadName || filename;

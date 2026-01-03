@@ -11,13 +11,19 @@ export const useDimension = (initialMaintainRatio: boolean = true) => {
     const [height, setHeight] = useState<number | ''>('');
     const [maintainRatio, setMaintainRatio] = useState(initialMaintainRatio);
 
-    const getAspectRatio = useCallback((originalDimensions: { width: number; height: number } | null): number | null => {
-        if (!originalDimensions) return null;
-        return originalDimensions.width / originalDimensions.height;
-    }, []);
+    const getAspectRatio = useCallback(
+        (originalDimensions: { width: number; height: number } | null): number | null => {
+            if (!originalDimensions) return null;
+            return originalDimensions.width / originalDimensions.height;
+        },
+        []
+    );
 
     const handleWidthChange = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>, originalDimensions: { width: number; height: number } | null) => {
+        (
+            e: React.ChangeEvent<HTMLInputElement>,
+            originalDimensions: { width: number; height: number } | null
+        ) => {
             const newWidth = e.target.value === '' ? '' : Number(e.target.value);
             setWidth(newWidth);
 
@@ -33,7 +39,10 @@ export const useDimension = (initialMaintainRatio: boolean = true) => {
     );
 
     const handleHeightChange = useCallback(
-        (e: React.ChangeEvent<HTMLInputElement>, originalDimensions: { width: number; height: number } | null) => {
+        (
+            e: React.ChangeEvent<HTMLInputElement>,
+            originalDimensions: { width: number; height: number } | null
+        ) => {
             const newHeight = e.target.value === '' ? '' : Number(e.target.value);
             setHeight(newHeight);
 

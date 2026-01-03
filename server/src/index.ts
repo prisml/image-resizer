@@ -28,9 +28,10 @@ app.use('/api/resize', resizeRoutes);
 // 파일 다운로드 엔드포인트
 app.get('/api/download/:filename', (req, res) => {
     const filename = req.params.filename;
+    const downloadName = req.query.downloadName as string || filename;
     const filepath = path.join(process.cwd(), 'uploads', filename);
 
-    res.download(filepath, filename, (err) => {
+    res.download(filepath, downloadName, (err) => {
         if (err) {
             res.status(404).json({ error: '파일을 찾을 수 없습니다.' });
         }

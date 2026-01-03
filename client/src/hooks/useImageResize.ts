@@ -28,15 +28,20 @@ export const useImageResize = () => {
 
             for (let i = 0; i < checkedFiles.length; i++) {
                 const file = checkedFiles[i];
-                setLoadingMessage(
-                    `[${i + 1}/${checkedFiles.length}] ${file.name} 처리 중...`
-                );
+                setLoadingMessage(`[${i + 1}/${checkedFiles.length}] ${file.name} 처리 중...`);
 
                 const response = await resizeImage({
                     filename: file.filename || file.name,
+                    originalName: file.name, // 원본 파일명 전송
                     width: width === '' ? undefined : Number(width),
                     height: height === '' ? undefined : Number(height),
                     maintainAspectRatio: maintainRatio,
+                });
+
+                console.log('리사이징 응답:', {
+                    originalName: response.file.originalName,
+                    originalExt: response.file.originalExt,
+                    downloadName: `resized_${response.file.originalName}${response.file.originalExt}`,
                 });
 
                 if (response.success) {

@@ -9,8 +9,14 @@ import PreviewPanel from './PreviewPanel';
 
 export default function ImageEditor() {
     const { files, checked, toggleChecked } = useImageStore();
-    const { width, height, maintainRatio, handleWidthChange, handleHeightChange, handleMaintainRatioChange } =
-        useDimension(true);
+    const {
+        width,
+        height,
+        maintainRatio,
+        handleWidthChange,
+        handleHeightChange,
+        handleMaintainRatioChange,
+    } = useDimension(true);
     const { selectedForPreview, originalDimensions } = usePreview(files, checked);
     const { isLoading, loadingMessage, handleConvertAndDownload } = useImageResize();
 

@@ -12,7 +12,9 @@ const uploadDir = path.join(process.cwd(), 'uploads');
  */
 router.post('/', async (req: any, res: any, next: any) => {
     try {
-        const { filename, width, height, maintainAspectRatio } = req.body;
+        const { filename, originalName, width, height, maintainAspectRatio } = req.body;
+        
+        console.log('리사이징 요청 받음:', { filename, originalName, width, height });
 
         if (!filename) {
             return res.status(400).json({ error: '파일명이 필요합니다.' });
@@ -53,8 +55,7 @@ router.post('/', async (req: any, res: any, next: any) => {
 
         // 리사이징된 파일명
         const ext = path.extname(filename);
-        const nameWithoutExt = path.basename(filename, ext);
-        const resizedFilename = `${nameWithoutExt}-resized-${Date.now()}${ext}`;
+        const resizedFilename = `${path.basename(filename, ext)}-resized-${Date.now()}${ext}`;
         const outputPath = path.join(uploadDir, resizedFilename);
 
         // Sharp를 이용한 이미지 리사이징
@@ -65,12 +66,32 @@ router.post('/', async (req: any, res: any, next: any) => {
             })
             .toFile(outputPath);
 
+        // 원본 파일명 파싱 (originalName이 없으면 filename에서 추출)
+        let finalOriginalName = originalName;
+        let finalOriginalExt = ext;
+
+        if (!originalName) {
+            // 클라이언트에서 originalName을 안 보냈으면 filename에서 추출
+            finalOriginalName = path.basename(filename, ext);
+        } else {
+            // 클라이언트에서 보낸 originalName에서 확장자 분리
+            finalOriginalExt = path.extname(originalName);
+            finalOriginalName = path.basename(originalName, finalOriginalExt);
+        }
+
+        console.log('리사이징 완료 - 응답 준비:', {
+            originalName,
+            finalOriginalName,
+            finalOriginalExt,
+            downloadFilename: `resized_${finalOriginalName}${finalOriginalExt}`,
+        });
+
         res.json({
             success: true,
             file: {
                 originalFilename: filename,
-                originalName: nameWithoutExt,
-                originalExt: ext,
+                originalName: finalOriginalName,
+                originalExt: finalOriginalExt,
                 resizedFilename: resizedFilename,
                 path: `/uploads/${resizedFilename}`,
             },

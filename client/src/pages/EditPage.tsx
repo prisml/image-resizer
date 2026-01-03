@@ -177,11 +177,11 @@ export default function EditPage() {
                                             : 'hover:shadow-md'
                                     }`}
                                 >
-                                    <div className="bg-gray-200 h-32 overflow-hidden">
+                                    <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden">
                                         <img
                                             src={fileObj.preview}
                                             alt={fileObj.name}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-contain"
                                         />
                                     </div>
                                     <div className="bg-white p-3">
@@ -202,11 +202,11 @@ export default function EditPage() {
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h2>
                         {selected ? (
                             <>
-                                <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden h-48">
+                                <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
                                     <img
                                         src={selected.preview}
                                         alt={selected.name}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-contain"
                                     />
                                 </div>
                                 <div className="space-y-2 text-sm mb-4">

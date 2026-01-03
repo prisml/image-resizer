@@ -24,7 +24,9 @@ export default function UploadPage() {
         if (file.size > MAX_FILE_SIZE) {
             return {
                 valid: false,
-                error: `파일 크기가 너무 큽니다: ${(file.size / 1024 / 1024).toFixed(2)}MB. 50MB 이하의 파일만 업로드할 수 있습니다.`,
+                error: `파일 크기가 너무 큽니다: ${(file.size / 1024 / 1024).toFixed(
+                    2
+                )}MB. 50MB 이하의 파일만 업로드할 수 있습니다.`,
             };
         }
 
@@ -116,13 +118,17 @@ export default function UploadPage() {
             <div className="w-full max-w-2xl">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">이미지 리사이저</h1>
-                    <p className="text-gray-600">이미지를 드래그해서 업로드하거나 클릭해서 선택하세요</p>
+                    <p className="text-gray-600">
+                        이미지를 드래그해서 업로드하거나 클릭해서 선택하세요
+                    </p>
                 </div>
 
                 {/* 드래그 앤 드롭 영역 */}
                 <div
                     className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition mb-6 ${
-                        isUploading ? 'border-gray-300 bg-gray-50 opacity-50 cursor-not-allowed' : dragActive
+                        isUploading
+                            ? 'border-gray-300 bg-gray-50 opacity-50 cursor-not-allowed'
+                            : dragActive
                             ? 'border-indigo-600 bg-indigo-50'
                             : 'border-gray-300 bg-white hover:border-indigo-400'
                     }`}
@@ -140,7 +146,10 @@ export default function UploadPage() {
                         disabled={isUploading}
                         className="hidden"
                     />
-                    <label htmlFor="file-input" className={`cursor-pointer ${isUploading ? 'pointer-events-none' : ''}`}>
+                    <label
+                        htmlFor="file-input"
+                        className={`cursor-pointer ${isUploading ? 'pointer-events-none' : ''}`}
+                    >
                         {isUploading ? (
                             <div className="flex flex-col items-center">
                                 <div className="animate-spin mb-4">
@@ -165,7 +174,9 @@ export default function UploadPage() {
                                         ></path>
                                     </svg>
                                 </div>
-                                <p className="text-indigo-600 font-semibold text-lg">파일 업로드 중...</p>
+                                <p className="text-indigo-600 font-semibold text-lg">
+                                    파일 업로드 중...
+                                </p>
                             </div>
                         ) : (
                             <>
@@ -182,8 +193,12 @@ export default function UploadPage() {
                                         strokeLinejoin="round"
                                     />
                                 </svg>
-                                <p className="text-gray-600 font-semibold text-lg">이미지를 여기에 드래그하거나</p>
-                                <p className="text-indigo-600 font-semibold text-lg mt-1">클릭하여 선택하세요</p>
+                                <p className="text-gray-600 font-semibold text-lg">
+                                    이미지를 여기에 드래그하거나
+                                </p>
+                                <p className="text-indigo-600 font-semibold text-lg mt-1">
+                                    클릭하여 선택하세요
+                                </p>
                             </>
                         )}
                     </label>

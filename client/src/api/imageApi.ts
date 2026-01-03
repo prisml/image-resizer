@@ -85,20 +85,28 @@ export const resizeMultipleImages = async (payloads: ResizePayload[]): Promise<R
 /**
  * 이미지 다운로드
  */
-export const downloadImage = (filename: string) => {
-    const url = `${API_BASE_URL}/uploads/${filename}`;
+/**
+ * 이미지 다운로드
+ */
+export const downloadImage = (filename: string, downloadName?: string) => {
+    const url = `${API_BASE_URL}/api/download/${filename}`;
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename;
+    link.download = downloadName || filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 };
 
 /**
  * 여러 이미지 다운로드 (개별)
  */
 export const downloadMultipleImages = (filenames: string[]) => {
-    filenames.forEach((filename) => {
-        downloadImage(filename);
+    filenames.forEach((filename, index) => {
+        // 각 다운로드 사이에 약간의 지연 추가
+        setTimeout(() => {
+            downloadImage(filename);
+        }, index * 500);
     });
 };
 

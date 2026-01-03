@@ -29,29 +29,25 @@ router.post('/', upload.single('file'), (req: any, res: any) => {
  * POST /api/upload/multiple
  * 여러 이미지 파일 업로드
  */
-router.post(
-    '/multiple',
-    upload.array('files', 20),
-    (req: any, res: any) => {
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ error: '파일이 업로드되지 않았습니다.' });
-        }
-
-        const files = req.files.map((file: any) => ({
-            originalName: file.originalname,
-            filename: file.filename,
-            size: file.size,
-            mimetype: file.mimetype,
-            path: `/uploads/${file.filename}`,
-        }));
-
-        res.json({
-            success: true,
-            files,
-            count: files.length,
-        });
+router.post('/multiple', upload.array('files', 20), (req: any, res: any) => {
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: '파일이 업로드되지 않았습니다.' });
     }
-);
+
+    const files = req.files.map((file: any) => ({
+        originalName: file.originalname,
+        filename: file.filename,
+        size: file.size,
+        mimetype: file.mimetype,
+        path: `/uploads/${file.filename}`,
+    }));
+
+    res.json({
+        success: true,
+        files,
+        count: files.length,
+    });
+});
 
 export default router;
 

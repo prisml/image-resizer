@@ -110,8 +110,9 @@ export default function EditPage() {
 
             if (response.success) {
                 setLoadingMessage(`다운로드 중...`);
-                // 자동 다운로드
-                downloadImage(response.file.resizedFilename);
+                // 파일명에 'resized_' prefix 추가
+                const downloadFilename = `resized_${response.file.resizedFilename}`;
+                downloadImage(response.file.resizedFilename, downloadFilename);
 
                 // 잠시 후 완료 메시지
                 setTimeout(() => {
@@ -152,21 +153,28 @@ export default function EditPage() {
                         {selected ? (
                             <div>
                                 <div className="mb-4">
-                                    <p className="text-sm font-medium text-gray-700 mb-1">선택된 파일</p>
-                                    <p className="text-sm text-gray-600 truncate">{selected.name}</p>
+                                    <p className="text-sm font-medium text-gray-700 mb-1">
+                                        선택된 파일
+                                    </p>
+                                    <p className="text-sm text-gray-600 truncate">
+                                        {selected.name}
+                                    </p>
                                 </div>
 
                                 {originalDimensions && (
                                     <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
                                         <p className="text-xs text-blue-800">
-                                            원본 크기: {originalDimensions.width} × {originalDimensions.height} px
+                                            원본 크기: {originalDimensions.width} ×{' '}
+                                            {originalDimensions.height} px
                                         </p>
                                     </div>
                                 )}
 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">너비 (px)</label>
+                                        <label className="text-sm font-medium text-gray-700">
+                                            너비 (px)
+                                        </label>
                                         <input
                                             type="number"
                                             value={width}
@@ -176,7 +184,9 @@ export default function EditPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">높이 (px)</label>
+                                        <label className="text-sm font-medium text-gray-700">
+                                            높이 (px)
+                                        </label>
                                         <input
                                             type="number"
                                             value={height}
@@ -192,7 +202,9 @@ export default function EditPage() {
                                             onChange={handleMaintainRatioChange}
                                             className="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
                                         />
-                                        <span className="ml-2 text-sm font-medium text-gray-700">원본 비율 유지</span>
+                                        <span className="ml-2 text-sm font-medium text-gray-700">
+                                            원본 비율 유지
+                                        </span>
                                     </label>
                                     <button
                                         onClick={handleApplyResize}
@@ -204,13 +216,17 @@ export default function EditPage() {
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-gray-500 text-sm">파일을 선택하면 여기에 옵션이 표시됩니다.</p>
+                            <p className="text-gray-500 text-sm">
+                                파일을 선택하면 여기에 옵션이 표시됩니다.
+                            </p>
                         )}
                     </div>
 
                     {/* 중앙: 파일 탐색기 */}
                     <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-4">파일 목록 ({files.length})</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                            파일 목록 ({files.length})
+                        </h2>
                         <div className="grid grid-cols-3 gap-4">
                             {files.map((fileObj) => (
                                 <div
@@ -257,7 +273,9 @@ export default function EditPage() {
                                 <div className="space-y-2 text-sm mb-4">
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">파일명</span>
-                                        <span className="font-medium text-gray-900">{selected.name}</span>
+                                        <span className="font-medium text-gray-900">
+                                            {selected.name}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">크기</span>
@@ -267,19 +285,25 @@ export default function EditPage() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">형식</span>
-                                        <span className="font-medium text-gray-900">{selected.type}</span>
+                                        <span className="font-medium text-gray-900">
+                                            {selected.type}
+                                        </span>
                                     </div>
                                 </div>
                             </>
                         ) : (
-                            <p className="text-gray-500 text-sm">파일을 선택하면 미리보기가 표시됩니다.</p>
+                            <p className="text-gray-500 text-sm">
+                                파일을 선택하면 미리보기가 표시됩니다.
+                            </p>
                         )}
                         <div className="flex-1" />
 
                         {/* 로딩 상태 표시 */}
                         {isLoading && (
                             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p className="text-blue-700 text-sm font-medium">{loadingMessage}</p>
+                                <p className="text-blue-700 text-sm font-medium">
+                                    {loadingMessage}
+                                </p>
                                 <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-indigo-600 h-2 rounded-full animate-pulse"></div>
                                 </div>

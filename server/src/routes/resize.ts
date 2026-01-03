@@ -69,6 +69,8 @@ router.post('/', async (req: any, res: any, next: any) => {
             success: true,
             file: {
                 originalFilename: filename,
+                originalName: nameWithoutExt,
+                originalExt: ext,
                 resizedFilename: resizedFilename,
                 path: `/uploads/${resizedFilename}`,
             },

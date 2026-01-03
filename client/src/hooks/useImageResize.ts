@@ -43,7 +43,8 @@ export const useImageResize = () => {
                     setLoadingMessage(
                         `[${i + 1}/${checkedFiles.length}] ${file.name} 다운로드 중...`
                     );
-                    const downloadFilename = `resized_${response.file.resizedFilename}`;
+                    // 원본 파일명에 'resized_' prefix 추가
+                    const downloadFilename = `resized_${response.file.originalName}${response.file.originalExt}`;
                     downloadImage(response.file.resizedFilename, downloadFilename);
                 }
             }

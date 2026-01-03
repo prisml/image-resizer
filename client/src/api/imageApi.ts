@@ -25,6 +25,7 @@ export interface MultipleUploadResponse {
 
 export interface ResizePayload {
     filename: string;
+    originalName: string;
     width?: number;
     height?: number;
     maintainAspectRatio: boolean;
@@ -34,6 +35,8 @@ export interface ResizeResponse {
     success: boolean;
     file: {
         originalFilename: string;
+        originalName: string;
+        originalExt: string;
         resizedFilename: string;
         path: string;
     };

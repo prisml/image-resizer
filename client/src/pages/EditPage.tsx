@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useImageStore } from '../store/imageStore';
-import { resizeImage, downloadImage } from '../api/imageApi';
+import { resizeImage, downloadImage, resizeMultipleImages } from '../api/imageApi';
 
 export default function EditPage() {
     const navigate = useNavigate();
-    const { files, selected, setSelected, setResizeSettings, resizeSettings } = useImageStore();
+    const { files, checked, setChecked, toggleChecked } = useImageStore();
     const [width, setWidth] = useState<number | ''>('');
     const [height, setHeight] = useState<number | ''>('');
-    const [maintainRatio, setMaintainRatio] = useState(false);
+    const [maintainRatio, setMaintainRatio] = useState(true);
+    const [selectedForPreview, setSelectedForPreview] = useState<any>(null);
     const [originalDimensions, setOriginalDimensions] = useState<{
         width: number;
         height: number;
@@ -20,26 +21,31 @@ export default function EditPage() {
         if (files.length === 0) {
             navigate('/');
         }
+        // 모든 파일을 자동으로 선택 (체크)
+        if (files.length > 0 && checked.length === 0) {
+            setChecked(files.map((f) => f.id));
+        }
     }, [files, navigate]);
 
     useEffect(() => {
-        // 새로운 파일을 선택했을 때 입력값 초기화
-        if (selected) {
-            setWidth('');
-            setHeight('');
-            setMaintainRatio(false);
+        // 프리뷰용 파일 선택 (첫 번째 checked 파일)
+        if (files.length > 0 && checked.length > 0) {
+            const firstCheckedFile = files.find((f) => checked.includes(f.id));
+            if (firstCheckedFile) {
+                setSelectedForPreview(firstCheckedFile);
 
-            // 이미지의 실제 크기를 가져오기
-            const img = new Image();
-            img.onload = () => {
-                setOriginalDimensions({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight,
-                });
-            };
-            img.src = selected.preview;
+                // 이미지의 실제 크기 가져오기
+                const img = new Image();
+                img.onload = () => {
+                    setOriginalDimensions({
+                        width: img.naturalWidth,
+                        height: img.naturalHeight,
+                    });
+                };
+                img.src = firstCheckedFile.preview;
+            }
         }
-    }, [selected]);
+    }, [files, checked]);
 
     const getAspectRatio = (): number | null => {
         if (!originalDimensions) return null;
@@ -76,18 +82,8 @@ export default function EditPage() {
         setMaintainRatio(e.target.checked);
     };
 
-    const handleApplyResize = () => {
-        if (selected && (width !== '' || height !== '')) {
-            setResizeSettings({
-                width: width === '' ? null : Number(width),
-                height: height === '' ? null : Number(height),
-                maintainAspectRatio: maintainRatio,
-            });
-        }
-    };
-
     const handleConvertAndDownload = async () => {
-        if (!selected) {
+        if (checked.length === 0) {
             alert('파일을 선택해주세요.');
             return;
         }
@@ -99,28 +95,37 @@ export default function EditPage() {
 
         try {
             setIsLoading(true);
-            setLoadingMessage(`${selected.name} 리사이징 중...`);
+            setLoadingMessage(`${checked.length}개 파일 리사이징 중...`);
 
-            const response = await resizeImage({
-                filename: selected.filename || selected.name,
-                width: width === '' ? undefined : Number(width),
-                height: height === '' ? undefined : Number(height),
-                maintainAspectRatio: maintainRatio,
-            });
+            // 선택된 모든 파일에 대해 리사이징 수행
+            const checkedFiles = files.filter((f) => checked.includes(f.id));
 
-            if (response.success) {
-                setLoadingMessage(`다운로드 중...`);
-                // 파일명에 'resized_' prefix 추가
-                const downloadFilename = `resized_${response.file.resizedFilename}`;
-                downloadImage(response.file.resizedFilename, downloadFilename);
+            for (let i = 0; i < checkedFiles.length; i++) {
+                const file = checkedFiles[i];
+                setLoadingMessage(`[${i + 1}/${checkedFiles.length}] ${file.name} 처리 중...`);
 
-                // 잠시 후 완료 메시지
-                setTimeout(() => {
-                    alert('리사이징이 완료되었습니다!');
-                    setIsLoading(false);
-                    setLoadingMessage('');
-                }, 1000);
+                const response = await resizeImage({
+                    filename: file.filename || file.name,
+                    width: width === '' ? undefined : Number(width),
+                    height: height === '' ? undefined : Number(height),
+                    maintainAspectRatio: maintainRatio,
+                });
+
+                if (response.success) {
+                    setLoadingMessage(
+                        `[${i + 1}/${checkedFiles.length}] ${file.name} 다운로드 중...`
+                    );
+                    // 파일명에 'resized_' prefix 추가
+                    const downloadFilename = `resized_${response.file.resizedFilename}`;
+                    downloadImage(response.file.resizedFilename, downloadFilename);
+                }
             }
+
+            setTimeout(() => {
+                alert(`${checked.length}개 파일 리사이징이 완료되었습니다!`);
+                setIsLoading(false);
+                setLoadingMessage('');
+            }, 1000);
         } catch (error: any) {
             console.error('리사이징 에러:', error);
             alert(`에러 발생: ${error.response?.data?.error || error.message}`);
@@ -150,90 +155,71 @@ export default function EditPage() {
                     {/* 좌측: 조절 패널 */}
                     <div className="w-64 bg-white border-r border-gray-200 p-6 overflow-y-auto">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">크기 조절</h2>
-                        {selected ? (
-                            <div>
-                                <div className="mb-4">
-                                    <p className="text-sm font-medium text-gray-700 mb-1">
-                                        선택된 파일
-                                    </p>
-                                    <p className="text-sm text-gray-600 truncate">
-                                        {selected.name}
-                                    </p>
-                                </div>
-
-                                {originalDimensions && (
-                                    <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
-                                        <p className="text-xs text-blue-800">
-                                            원본 크기: {originalDimensions.width} ×{' '}
-                                            {originalDimensions.height} px
-                                        </p>
-                                    </div>
-                                )}
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">
-                                            너비 (px)
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={width}
-                                            onChange={handleWidthChange}
-                                            placeholder="입력하세요"
-                                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium text-gray-700">
-                                            높이 (px)
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={height}
-                                            onChange={handleHeightChange}
-                                            placeholder="입력하세요"
-                                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        />
-                                    </div>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            checked={maintainRatio}
-                                            onChange={handleMaintainRatioChange}
-                                            className="w-4 h-4 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
-                                        />
-                                        <span className="ml-2 text-sm font-medium text-gray-700">
-                                            원본 비율 유지
-                                        </span>
-                                    </label>
-                                    <button
-                                        onClick={handleApplyResize}
-                                        disabled={width === '' && height === ''}
-                                        className="w-full mt-6 bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        설정 적용
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="text-gray-500 text-sm">
-                                파일을 선택하면 여기에 옵션이 표시됩니다.
+                        <div className="mb-4 p-2 bg-amber-50 rounded border border-amber-200">
+                            <p className="text-xs font-medium text-amber-900">📋 일괄 모드</p>
+                            <p className="text-xs text-amber-700 mt-1">
+                                선택된 {checked.length}개 파일에 동일한 설정이 적용됩니다
                             </p>
+                        </div>
+
+                        {selectedForPreview && originalDimensions && (
+                            <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
+                                <p className="text-xs text-blue-800">
+                                    원본 크기: {originalDimensions.width} ×{' '}
+                                    {originalDimensions.height} px
+                                </p>
+                            </div>
                         )}
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">
+                                    너비 (px)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={width}
+                                    onChange={handleWidthChange}
+                                    placeholder="입력하세요"
+                                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">
+                                    높이 (px)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={height}
+                                    onChange={handleHeightChange}
+                                    placeholder="입력하세요"
+                                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={maintainRatio}
+                                    onChange={handleMaintainRatioChange}
+                                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                />
+                                <span className="ml-2 text-sm text-gray-700">원본 비율 유지</span>
+                            </label>
+                        </div>
                     </div>
 
-                    {/* 중앙: 파일 탐색기 */}
-                    <div className="flex-1 bg-gray-50 p-6 overflow-y-auto">
+                    {/* 중앙: 파일 그리드 */}
+                    <div className="flex-1 overflow-y-auto p-6">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                            파일 목록 ({files.length})
+                            파일 목록 ({checked.length}/{files.length})
                         </h2>
                         <div className="grid grid-cols-3 gap-4">
                             {files.map((fileObj) => (
                                 <div
                                     key={fileObj.id}
-                                    onClick={() => setSelected(fileObj)}
-                                    className={`rounded-lg overflow-hidden shadow transition cursor-pointer ${
-                                        selected?.id === fileObj.id
+                                    onClick={() => toggleChecked(fileObj.id)}
+                                    className={`relative group cursor-pointer rounded-lg overflow-hidden transition transform hover:scale-105 ${
+                                        checked.includes(fileObj.id)
                                             ? 'ring-2 ring-indigo-600 shadow-lg'
                                             : 'hover:shadow-md'
                                     }`}
@@ -253,6 +239,11 @@ export default function EditPage() {
                                             {(fileObj.size / 1024).toFixed(2)} KB
                                         </p>
                                     </div>
+                                    {checked.includes(fileObj.id) && (
+                                        <div className="absolute top-2 right-2 bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+                                            ✓
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -261,12 +252,12 @@ export default function EditPage() {
                     {/* 우측: 미리보기 및 정보 */}
                     <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto flex flex-col">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h2>
-                        {selected ? (
+                        {selectedForPreview ? (
                             <>
                                 <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
                                     <img
-                                        src={selected.preview}
-                                        alt={selected.name}
+                                        src={selectedForPreview.preview}
+                                        alt={selectedForPreview.name}
                                         className="w-full h-full object-contain"
                                     />
                                 </div>
@@ -274,19 +265,19 @@ export default function EditPage() {
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">파일명</span>
                                         <span className="font-medium text-gray-900">
-                                            {selected.name}
+                                            {selectedForPreview.name}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">크기</span>
                                         <span className="font-medium text-gray-900">
-                                            {(selected.size / 1024).toFixed(2)} KB
+                                            {(selectedForPreview.size / 1024).toFixed(2)} KB
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-600">형식</span>
                                         <span className="font-medium text-gray-900">
-                                            {selected.type}
+                                            {selectedForPreview.type}
                                         </span>
                                     </div>
                                 </div>
@@ -312,10 +303,12 @@ export default function EditPage() {
 
                         <button
                             onClick={handleConvertAndDownload}
-                            disabled={isLoading || !selected || (width === '' && height === '')}
+                            disabled={
+                                isLoading || checked.length === 0 || (width === '' && height === '')
+                            }
                             className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isLoading ? '변환 중...' : '✨ 변환하여 저장하기'}
+                            {isLoading ? '변환 중...' : `✨ ${checked.length}개 파일 저장`}
                         </button>
                     </div>
                 </div>

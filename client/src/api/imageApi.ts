@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
@@ -77,7 +76,9 @@ export const resizeImage = async (payload: ResizePayload): Promise<ResizeRespons
 /**
  * 여러 이미지 일괄 리사이징
  */
-export const resizeMultipleImages = async (payloads: ResizePayload[]): Promise<ResizeResponse[]> => {
+export const resizeMultipleImages = async (
+    payloads: ResizePayload[]
+): Promise<ResizeResponse[]> => {
     const responses = await Promise.all(payloads.map((payload) => resizeImage(payload)));
     return responses;
 };

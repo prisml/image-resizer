@@ -1,6 +1,6 @@
 import React from 'react';
 import { ImageFile } from '@/store/imageStore';
-import { Button, InfoBox } from '@/components';
+import { Button, InfoBox, InfoItem } from '@/components';
 
 interface PreviewPanelProps {
     selectedForPreview: ImageFile | null;
@@ -33,24 +33,12 @@ export default function PreviewPanel({
                         />
                     </div>
                     <div className="space-y-2 text-sm mb-4">
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">파일명</span>
-                            <span className="font-medium text-gray-900">
-                                {selectedForPreview.name}
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">크기</span>
-                            <span className="font-medium text-gray-900">
-                                {(selectedForPreview.size / 1024).toFixed(2)} KB
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span className="text-gray-600">형식</span>
-                            <span className="font-medium text-gray-900">
-                                {selectedForPreview.type}
-                            </span>
-                        </div>
+                        <InfoItem label="파일명" value={selectedForPreview.name} />
+                        <InfoItem
+                            label="크기"
+                            value={`${(selectedForPreview.size / 1024).toFixed(2)} KB`}
+                        />
+                        <InfoItem label="형식" value={selectedForPreview.type} />
                     </div>
                 </>
             ) : (

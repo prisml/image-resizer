@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDimension } from '@/hooks/useDimension';
+import { Input, InfoBox } from '@/components';
 
 interface ResizePanelProps {
     checkedCount: number;
@@ -26,42 +27,31 @@ export default function ResizePanel({
         <div className="w-64 bg-white border-r border-gray-200 p-6 overflow-y-auto">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">크기 조절</h2>
 
-            <div className="mb-4 p-2 bg-amber-50 rounded border border-amber-200">
-                <p className="text-xs font-medium text-amber-900">📋 일괄 모드</p>
-                <p className="text-xs text-amber-700 mt-1">
-                    선택된 {checkedCount}개 파일에 동일한 설정이 적용됩니다
-                </p>
-            </div>
+            <InfoBox type="warning" title="📋 일괄 모드" className="mb-4">
+                선택된 {checkedCount}개 파일에 동일한 설정이 적용됩니다
+            </InfoBox>
 
             {originalDimensions && (
-                <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
-                    <p className="text-xs text-blue-800">
-                        원본 크기: {originalDimensions.width} × {originalDimensions.height} px
-                    </p>
-                </div>
+                <InfoBox type="info" className="mb-4">
+                    원본 크기: {originalDimensions.width} × {originalDimensions.height} px
+                </InfoBox>
             )}
 
             <div className="space-y-4">
-                <div>
-                    <label className="text-sm font-medium text-gray-700">너비 (px)</label>
-                    <input
-                        type="number"
-                        value={width}
-                        onChange={(e) => onWidthChange(e, originalDimensions)}
-                        placeholder="입력하세요"
-                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-medium text-gray-700">높이 (px)</label>
-                    <input
-                        type="number"
-                        value={height}
-                        onChange={(e) => onHeightChange(e, originalDimensions)}
-                        placeholder="입력하세요"
-                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                </div>
+                <Input
+                    type="number"
+                    label="너비 (px)"
+                    value={width}
+                    onChange={(e) => onWidthChange(e, originalDimensions)}
+                    placeholder="입력하세요"
+                />
+                <Input
+                    type="number"
+                    label="높이 (px)"
+                    value={height}
+                    onChange={(e) => onHeightChange(e, originalDimensions)}
+                    placeholder="입력하세요"
+                />
                 <label className="flex items-center">
                     <input
                         type="checkbox"

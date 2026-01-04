@@ -1,5 +1,6 @@
 import React from 'react';
 import { ImageFile } from '@/store/imageStore';
+import { Button, InfoBox } from '@/components';
 
 interface PreviewPanelProps {
     selectedForPreview: ImageFile | null;
@@ -59,21 +60,25 @@ export default function PreviewPanel({
             <div className="flex-1" />
 
             {isLoading && (
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-blue-700 text-sm font-medium">{loadingMessage}</p>
-                    <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-indigo-600 h-2 rounded-full animate-pulse"></div>
+                <InfoBox type="info" className="mb-4">
+                    <div>
+                        <p className="font-medium mb-2">{loadingMessage}</p>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div className="bg-indigo-600 h-2 rounded-full animate-pulse"></div>
+                        </div>
                     </div>
-                </div>
+                </InfoBox>
             )}
 
-            <button
+            <Button
+                variant="primary"
+                size="lg"
                 onClick={onConvertAndDownload}
                 disabled={isLoading || isDisabled}
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full"
             >
                 {isLoading ? '변환 중...' : `✨ ${checkedCount}개 파일 저장`}
-            </button>
+            </Button>
         </div>
     );
 }

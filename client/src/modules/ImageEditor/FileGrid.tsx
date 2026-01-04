@@ -1,5 +1,6 @@
 import React from 'react';
 import { ImageFile } from '@/store/imageStore';
+import { Card } from '@/components';
 
 interface FileGridProps {
     files: ImageFile[];
@@ -15,36 +16,35 @@ export default function FileGrid({ files, checked, onToggleChecked }: FileGridPr
             </h2>
             <div className="grid grid-cols-3 gap-4">
                 {files.map((fileObj) => (
-                    <div
+                    <Card
                         key={fileObj.id}
+                        variant="hover"
                         onClick={() => onToggleChecked(fileObj.id)}
-                        className={`relative group cursor-pointer rounded-lg overflow-hidden transition transform hover:scale-105 ${
-                            checked.includes(fileObj.id)
-                                ? 'ring-2 ring-indigo-600 shadow-lg'
-                                : 'hover:shadow-md'
+                        className={`relative group cursor-pointer overflow-hidden transition transform hover:scale-105 ${
+                            checked.includes(fileObj.id) ? 'ring-2 ring-indigo-600 shadow-lg' : ''
                         }`}
                     >
-                        <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden">
+                        <Card.Body className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden p-0">
                             <img
                                 src={fileObj.preview}
                                 alt={fileObj.name}
                                 className="w-full h-full object-contain"
                             />
-                        </div>
-                        <div className="bg-white p-3">
+                        </Card.Body>
+                        <Card.Body className="py-2 px-3">
                             <p className="text-sm font-medium text-gray-900 truncate">
                                 {fileObj.name}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
                                 {(fileObj.size / 1024).toFixed(2)} KB
                             </p>
-                        </div>
+                        </Card.Body>
                         {checked.includes(fileObj.id) && (
                             <div className="absolute top-2 right-2 bg-indigo-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
                                 ✓
                             </div>
                         )}
-                    </div>
+                    </Card>
                 ))}
             </div>
         </div>

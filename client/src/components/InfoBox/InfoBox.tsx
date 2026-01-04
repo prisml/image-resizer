@@ -7,12 +7,7 @@ interface InfoBoxProps {
     className?: string;
 }
 
-export default function InfoBox({
-    type = 'info',
-    title,
-    children,
-    className = '',
-}: InfoBoxProps) {
+export default function InfoBox({ type = 'info', title, children, className = '' }: InfoBoxProps) {
     const typeStyles = {
         info: 'bg-blue-50 border-blue-200 text-blue-800',
         success: 'bg-green-50 border-green-200 text-green-800',

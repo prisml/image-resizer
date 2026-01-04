@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useImageStore, ImageFile } from '../store/imageStore';
-import { uploadMultipleImages } from '../api/imageApi';
+import { useImageStore, ImageFile } from '@/store/imageStore';
+import { uploadMultipleImages } from '@/api/imageApi';
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];

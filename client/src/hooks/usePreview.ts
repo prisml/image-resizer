@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ImageFile } from '../store/imageStore';
+import { ImageFile } from '@/store/imageStore';
 
 export const usePreview = (files: ImageFile[], checked: number[]) => {
     const [selectedForPreview, setSelectedForPreview] = useState<ImageFile | null>(null);

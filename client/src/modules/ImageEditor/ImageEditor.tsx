@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { useImageStore } from '../../store/imageStore';
-import { useDimension } from '../../hooks/useDimension';
-import { usePreview } from '../../hooks/usePreview';
-import { useImageResize } from '../../hooks/useImageResize';
-import { ResizePanel, FileGrid, PreviewPanel } from '../../components';
+import { useImageStore } from '@/store/imageStore';
+import { useDimension } from '@/hooks/useDimension';
+import { usePreview } from '@/hooks/usePreview';
+import { useImageResize } from '@/hooks/useImageResize';
+import ResizePanel from './ResizePanel';
+import FileGrid from './FileGrid';
+import PreviewPanel from './PreviewPanel';
 
 export default function ImageEditor() {
     const { files, checked, toggleChecked } = useImageStore();

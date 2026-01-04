@@ -16,7 +16,13 @@
         "isolatedModules": true,
         "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
+            "@/components/*": ["src/components/*"],
+            "@/modules/*": ["src/modules/*"],
+            "@/hooks/*": ["src/hooks/*"],
+            "@/store/*": ["src/store/*"],
+            "@/api/*": ["src/api/*"],
+            "@/pages/*": ["src/pages/*"]
         }
     },
     "include": ["src"],

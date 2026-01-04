@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDimension } from '../../hooks/useDimension';
+import { useDimension } from '@/hooks/useDimension';
 
 interface ResizePanelProps {
     checkedCount: number;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageFile } from '../../store/imageStore';
+import { ImageFile } from '@/store/imageStore';
 
 interface PreviewPanelProps {
     selectedForPreview: ImageFile | null;

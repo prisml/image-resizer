@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import UploadPage from './pages/UploadPage';
-import EditPage from './pages/EditPage';
+import UploadPage from '@/pages/UploadPage';
+import EditPage from '@/pages/EditPage';
 
 function App() {
     return (

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { resizeImage, downloadImage, downloadMultipleImagesAsZip } from '../api/imageApi';
-import { ImageFile } from '../store/imageStore';
+import { resizeImage, downloadImage, downloadMultipleImagesAsZip } from '@/api/imageApi';
+import { ImageFile } from '@/store/imageStore';
 
 export const useImageResize = () => {
     const [isLoading, setIsLoading] = useState(false);

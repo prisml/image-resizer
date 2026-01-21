@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
     plugins: [react()],
+    base: '/image-resizer/', // GitHub Pages 배포용
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),

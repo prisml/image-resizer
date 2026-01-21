@@ -21,7 +21,7 @@ export const downloadBlob = (blob: Blob, filename: string): void => {
  */
 export const downloadAsZip = async (
     images: ResizedImage[],
-    zipFilename: string = 'resized-images.zip'
+    zipFilename: string = 'resized-images.zip',
 ): Promise<void> => {
     const zip = new JSZip();
 
@@ -57,10 +57,7 @@ export const downloadAsZip = async (
 /**
  * 여러 이미지를 개별 파일로 다운로드합니다.
  */
-export const downloadMultipleFiles = (
-    images: ResizedImage[],
-    delayMs: number = 500
-): void => {
+export const downloadMultipleFiles = (images: ResizedImage[], delayMs: number = 500): void => {
     images.forEach((image, index) => {
         setTimeout(() => {
             downloadBlob(image.blob, image.resizedName);

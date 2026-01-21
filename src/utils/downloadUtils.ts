@@ -17,6 +17,7 @@ export const downloadBlob = (blob: Blob, filename: string): void => {
 
 /**
  * 여러 이미지를 ZIP 파일로 압축하여 다운로드합니다.
+ * ZIP 내부에는 원본 파일명으로 저장됩니다.
  */
 export const downloadAsZip = async (
     images: ResizedImage[],
@@ -28,14 +29,14 @@ export const downloadAsZip = async (
     const nameCount: Record<string, number> = {};
 
     for (const image of images) {
-        let filename = image.resizedName;
+        let filename = image.originalName; // 원본 파일명 사용
 
         // 중복 파일명 처리
         if (nameCount[filename]) {
             const ext = filename.substring(filename.lastIndexOf('.'));
             const baseName = filename.substring(0, filename.lastIndexOf('.'));
             filename = `${baseName}_${nameCount[filename]}${ext}`;
-            nameCount[image.resizedName]++;
+            nameCount[image.originalName]++;
         } else {
             nameCount[filename] = 1;
         }

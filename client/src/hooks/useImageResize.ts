@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { resizeImage, downloadImage, downloadMultipleImagesAsZip } from '@/api/imageApi';
 import { ImageFile } from '@/store/imageStore';
+import { resizeImage, ResizedImage } from '@/utils/imageUtils';
+import { downloadAsZip, downloadBlob } from '@/utils/downloadUtils';
 
 export const useImageResize = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -26,43 +27,40 @@ export const useImageResize = () => {
             setIsLoading(true);
             setLoadingMessage(`${checkedFiles.length}개 파일 리사이징 중...`);
 
-            const downloadFiles: Array<{ filename: string; downloadName: string }> = [];
+            const resizedImages: ResizedImage[] = [];
 
             for (let i = 0; i < checkedFiles.length; i++) {
                 const file = checkedFiles[i];
                 setLoadingMessage(`[${i + 1}/${checkedFiles.length}] ${file.name} 처리 중...`);
 
-                const response = await resizeImage({
-                    filename: file.filename || file.name,
-                    originalName: file.name, // 원본 파일명 전송
+                const resized = await resizeImage(file.file, {
                     width: width === '' ? undefined : Number(width),
                     height: height === '' ? undefined : Number(height),
                     maintainAspectRatio: maintainRatio,
                 });
 
-                if (response.success) {
-                    const downloadFilename = `resized_${response.file.originalName}${response.file.originalExt}`;
-                    downloadFiles.push({
-                        filename: response.file.resizedFilename,
-                        downloadName: downloadFilename,
-                    });
-                }
+                resizedImages.push(resized);
             }
 
-            // 모든 파일을 zip으로 압축해서 다운로드
-            if (downloadFiles.length > 0) {
-                setLoadingMessage(`${downloadFiles.length}개 파일을 ZIP으로 압축해 다운로드 중...`);
-                await downloadMultipleImagesAsZip(downloadFiles);
+            // 다운로드
+            if (resizedImages.length === 1) {
+                // 단일 파일은 바로 다운로드
+                setLoadingMessage('다운로드 중...');
+                downloadBlob(resizedImages[0].blob, resizedImages[0].resizedName);
+            } else if (resizedImages.length > 1) {
+                // 여러 파일은 ZIP으로 압축해서 다운로드
+                setLoadingMessage(`${resizedImages.length}개 파일을 ZIP으로 압축해 다운로드 중...`);
+                await downloadAsZip(resizedImages);
             }
 
             setTimeout(() => {
                 alert(`${checkedFiles.length}개 파일 리사이징이 완료되었습니다!`);
                 setIsLoading(false);
                 setLoadingMessage('');
-            }, 1000);
+            }, 500);
         } catch (error: any) {
             console.error('리사이징 에러:', error);
-            alert(`에러 발생: ${error.response?.data?.error || error.message}`);
+            alert(`에러 발생: ${error.message}`);
             setIsLoading(false);
             setLoadingMessage('');
         }

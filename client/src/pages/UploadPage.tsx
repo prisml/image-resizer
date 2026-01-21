@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useImageStore, ImageFile } from '@/store/imageStore';
-import { uploadMultipleImages } from '@/api/imageApi';
+import { getImageDimensions } from '@/utils/imageUtils';
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -108,22 +108,24 @@ export default function UploadPage() {
             return;
         }
 
-        // 서버로 파일 업로드
+        // 클라이언트에서 직접 파일 처리 (서버 업로드 없음)
         setIsUploading(true);
         try {
-            const response = await uploadMultipleImages(filesToUpload);
-
-            const newFiles: ImageFile[] = response.files.map((uploadedFile) => ({
-                id: Math.random(),
-                file: filesToUpload[response.files.indexOf(uploadedFile)],
-                name: uploadedFile.originalName,
-                size: uploadedFile.size,
-                type: uploadedFile.mimetype,
-                preview: URL.createObjectURL(filesToUpload[response.files.indexOf(uploadedFile)]),
-                width: null,
-                height: null,
-                filename: uploadedFile.filename,
-            }));
+            const newFiles: ImageFile[] = await Promise.all(
+                filesToUpload.map(async (file) => {
+                    const dimensions = await getImageDimensions(file);
+                    return {
+                        id: Math.random(),
+                        file: file,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        preview: URL.createObjectURL(file),
+                        width: dimensions.width,
+                        height: dimensions.height,
+                    };
+                })
+            );
 
             addFiles(newFiles);
 
@@ -131,7 +133,7 @@ export default function UploadPage() {
                 navigate('/edit');
             }
         } catch (err: any) {
-            setError(err.response?.data?.error || '파일 업로드에 실패했습니다.');
+            setError(err.message || '파일 처리에 실패했습니다.');
         } finally {
             setIsUploading(false);
         }

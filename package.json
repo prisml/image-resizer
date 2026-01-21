@@ -1,15 +1,12 @@
 {
     "name": "image-resizer",
-    "version": "1.0.0",
-    "description": "Modern image resizer application with React frontend and Express backend",
+    "version": "2.0.0",
+    "description": "Client-only image resizer application with React, Pica, and JSZip",
     "private": true,
     "scripts": {
-        "dev": "concurrently \"npm run client\" \"npm run server\"",
-        "client": "cd client && npm run dev",
-        "server": "cd server && npm run dev",
-        "install-all": "npm install && cd client && npm install && cd ../server && npm install"
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.0"
+        "dev": "cd client && npm run dev",
+        "build": "cd client && npm run build",
+        "preview": "cd client && npm run preview",
+        "install-all": "npm install && cd client && npm install"
     }
 }

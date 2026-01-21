@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import UploadPage from '@/pages/UploadPage';
 import EditPage from '@/pages/EditPage';
 
+const basename = import.meta.env.BASE_URL;
+
 function App() {
     return (
-        <Router>
+        <Router basename={basename}>
             <Routes>
                 <Route path="/" element={<UploadPage />} />
                 <Route path="/edit" element={<EditPage />} />
